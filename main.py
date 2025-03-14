@@ -9,8 +9,6 @@ from optimal_route import best_k_city_tsp
 dotenv.load_dotenv('.env')
 
 
-API_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json?origins={origin}&destinations={destinations}&units=imperial&key={api_key}'
-
 API_KEY = os.getenv("GOOGLE_API_KEY")
 
 
@@ -31,7 +29,7 @@ def get_column_values(filepath, column_to_parse):
 def get_distances(start: str, addresses: list[str]):
     encoded_start = quote(start)
     encoded_addresses = list(map(lambda x: quote(x), addresses))
-    response = requests.get(API_URL.format(
+    response = requests.get(os.getenv('API_URL').format(
         origin=encoded_start, destinations="|".join(encoded_addresses), api_key=API_KEY))
     rows = response.json()['rows']
     elements = rows[0]['elements']
