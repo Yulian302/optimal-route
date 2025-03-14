@@ -3,8 +3,7 @@ import requests
 import dotenv
 import os
 from urllib.parse import quote
-
-from optimal_route import best_k_city_tsp
+from io import BytesIO
 
 dotenv.load_dotenv('.env')
 
@@ -15,9 +14,9 @@ API_KEY = os.getenv("GOOGLE_API_KEY")
 # function to read and parse csv into a list of column values
 
 
-def get_column_values(filepath, column_to_parse):
+def get_column_values(contents, column_to_parse):
     try:
-        df = pd.read_csv(filepath)[column_to_parse]
+        df = pd.read_csv(BytesIO(contents))[column_to_parse]
         return [val for val in df]
 
     except:
@@ -54,21 +53,3 @@ def create_adjacency_matrix(start, addresses):
             matrix[j][i] = distances_from_current[j-1]
 
     return matrix
-
-
-start_address = '4029 Alia Dr, Warren, MI 48092'
-addresses = get_column_values("sample.csv", 'Address')
-adj_matrix = create_adjacency_matrix(start_address, addresses)
-
-k = 2
-best_subset, min_cost, best_path = best_k_city_tsp(adj_matrix, k, 0)
-
-# best_subset_verbose = [start_address if node ==
-#                        0 else addresses[node] for node in best_path]
-# print(f"Best subset of cities to visit: {best_subset_verbose}")
-minutes, seconds = divmod(min_cost, 60)
-print(
-    f"Minimum travel time: {minutes:.0f} minutes {seconds:.0f} seconds")
-best_path_verbose = " -> ".join([start_address if node ==
-                                 0 else addresses[node] for node in best_path])+" -> "+start_address
-print(f"Optimal path: {best_path_verbose}")
