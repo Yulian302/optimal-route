@@ -1,14 +1,14 @@
-import pandas as pd
+from pandas import read_csv
 import requests
-import dotenv
-import os
+from dotenv import load_dotenv
+from os import getenv
 from urllib.parse import quote
 from io import BytesIO
 
-dotenv.load_dotenv('.env')
+load_dotenv('.env')
 
 
-API_KEY = os.getenv("GOOGLE_API_KEY")
+API_KEY = getenv("GOOGLE_API_KEY")
 
 
 # function to read and parse csv into a list of column values
@@ -16,7 +16,7 @@ API_KEY = os.getenv("GOOGLE_API_KEY")
 
 def get_column_values(contents, column_to_parse):
     try:
-        df = pd.read_csv(BytesIO(contents))[column_to_parse]
+        df = read_csv(BytesIO(contents))[column_to_parse]
         return [val for val in df]
 
     except:
@@ -28,7 +28,7 @@ def get_column_values(contents, column_to_parse):
 def get_distances(start: str, addresses: list[str]):
     encoded_start = quote(start)
     encoded_addresses = list(map(lambda x: quote(x), addresses))
-    response = requests.get(os.getenv('API_URL').format(
+    response = requests.get(getenv('API_URL').format(
         origin=encoded_start, destinations="|".join(encoded_addresses), api_key=API_KEY))
     rows = response.json()['rows']
     elements = rows[0]['elements']
