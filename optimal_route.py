@@ -1,5 +1,5 @@
 from functools import lru_cache
-import itertools
+from itertools import combinations
 
 
 def tsp(graph, cities):
@@ -54,7 +54,7 @@ def best_k_city_tsp(graph, k, start_city=0):
 
     city_indices = list(range(n))
     city_indices.remove(start_city)
-    possible_subsets = itertools.combinations(city_indices, k)
+    possible_subsets = combinations(city_indices, k)
 
     for subset in possible_subsets:
         selected_cities = [start_city] + list(subset)

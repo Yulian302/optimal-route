@@ -1,25 +1,22 @@
-import pandas as pd
+from pandas import read_csv
 import requests
-import dotenv
-import os
+from dotenv import load_dotenv
+from os import getenv
 from urllib.parse import quote
+from io import BytesIO
 
-from optimal_route import best_k_city_tsp
-
-dotenv.load_dotenv('.env')
+load_dotenv('.env')
 
 
-API_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json?origins={origin}&destinations={destinations}&units=imperial&key={api_key}'
-
-API_KEY = os.getenv("GOOGLE_API_KEY")
+API_KEY = getenv("GOOGLE_API_KEY")
 
 
 # function to read and parse csv into a list of column values
 
 
-def get_column_values(filepath, column_to_parse):
+def get_column_values(contents, column_to_parse):
     try:
-        df = pd.read_csv(filepath)[column_to_parse]
+        df = read_csv(BytesIO(contents))[column_to_parse]
         return [val for val in df]
 
     except:
@@ -31,7 +28,7 @@ def get_column_values(filepath, column_to_parse):
 def get_distances(start: str, addresses: list[str]):
     encoded_start = quote(start)
     encoded_addresses = list(map(lambda x: quote(x), addresses))
-    response = requests.get(API_URL.format(
+    response = requests.get(getenv('API_URL').format(
         origin=encoded_start, destinations="|".join(encoded_addresses), api_key=API_KEY))
     rows = response.json()['rows']
     elements = rows[0]['elements']
@@ -56,21 +53,3 @@ def create_adjacency_matrix(start, addresses):
             matrix[j][i] = distances_from_current[j-1]
 
     return matrix
-
-
-start_address = '4029 Alia Dr, Warren, MI 48092'
-addresses = get_column_values("sample.csv", 'Address')
-adj_matrix = create_adjacency_matrix(start_address, addresses)
-
-k = 2
-best_subset, min_cost, best_path = best_k_city_tsp(adj_matrix, k, 0)
-
-# best_subset_verbose = [start_address if node ==
-#                        0 else addresses[node] for node in best_path]
-# print(f"Best subset of cities to visit: {best_subset_verbose}")
-minutes, seconds = divmod(min_cost, 60)
-print(
-    f"Minimum travel time: {minutes:.0f} minutes {seconds:.0f} seconds")
-best_path_verbose = " -> ".join([start_address if node ==
-                                 0 else addresses[node] for node in best_path])+" -> "+start_address
-print(f"Optimal path: {best_path_verbose}")
