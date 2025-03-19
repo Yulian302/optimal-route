@@ -1,4 +1,3 @@
-from pandas import read_csv
 import requests
 from dotenv import load_dotenv
 from os import getenv
@@ -10,17 +9,6 @@ load_dotenv('.env')
 
 API_KEY = getenv("GOOGLE_API_KEY")
 
-
-# function to read and parse csv into a list of column values
-
-
-def get_column_values(contents, column_to_parse):
-    try:
-        df = read_csv(BytesIO(contents))[column_to_parse]
-        return [val for val in df]
-
-    except:
-        raise Exception("File or column does not exist!")
 
 # function that uses Distance Matrix API (Google) to return distance from point A to a list of points.
 

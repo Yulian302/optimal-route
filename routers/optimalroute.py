@@ -12,7 +12,7 @@ router = APIRouter()
 @router.post("/optimal")
 async def get_optimal_route(start_address: str = Form(...), n_best: int = Form(...), file: UploadFile = File(...)):
     contents = await file.read()
-    addresses = get_column_values(contents, "Address")
+    addresses = list(map(lambda s: s.decode("ascii"), contents.splitlines()))
     adj_matrix = create_adjacency_matrix(start_address, addresses)
     _, min_cost, best_path = best_k_city_tsp(adj_matrix, n_best, 0)
     minutes, seconds = divmod(min_cost, 60)
